@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { updateEmployee, deleteEmployee } from "../../services/service";
+import { Alert } from 'antd';
+
 
 export default function UpdateEmployee(){
 
-        const employeeId = 25;
-        
+        const employeeId = 26;
+        const [updatedEmployee, setUpdateEmployee] = useState(false);
+        const [deletedEmployee, setDeleteEmployee] = useState(false);
+
         const [formData, setFormData] = useState({
             fullName:'John Doe',
             age:'25',
@@ -26,6 +30,7 @@ export default function UpdateEmployee(){
         const handleUpdateEmployee = async(event) =>{
 
             event.preventDefault();
+            setUpdateEmployee(false);
 
             const newErrors = [];
 
@@ -49,7 +54,7 @@ export default function UpdateEmployee(){
             }else{
                 setErrors([]);
                 let data = await updateEmployee(formData, employeeId);
-                console.log(data);
+                setUpdateEmployee(true);
                 if(data.status === 404){
                     setErrors(["No user with this id found!"]);
                 }
@@ -60,14 +65,14 @@ export default function UpdateEmployee(){
         const handleDeleteEmployee = async(event) =>{
 
             event.preventDefault();
+            setDeleteEmployee(false);
             
             let data = await deleteEmployee(employeeId);
 
-
-            if(data.status === 404){
+            if(!data.success){
                 setErrors(["No user with this id found!"]);
             }else{
-                alert("Deleted successfully!");
+                setDeleteEmployee(true);
                 setErrors([]);
             }
 
@@ -75,23 +80,56 @@ export default function UpdateEmployee(){
 
         return(
 
-        <>
-            <h1>Update Employee</h1>
-            <form>
-            <p>{
+        <>  
+            {
                errors.length>0&&(
-                  <div>
-                      <h2 className="error">Oooops!</h2> 
-                       <ul className="error">
-                         {
-                               errors.map(err=>{
-                                return (<li>{err}</li>)
-                            })
-                         }
-                       </ul>
+                  <div className = "alert-container">
+                     <Alert 
+                        message="Error"
+                        description={
+                            <div>
+                                {errors.map((error, index) => (
+                                    <div key={index}>{error}</div> 
+                                ))}
+                            </div>
+                        }
+                        type="error"
+                        showIcon
+                        closable
+                        onClose={() => setErrors([])}
+                        />
                   </div>
                )
            }
+           {
+                updatedEmployee &&(
+                    <div className = "alert-container">
+                        <Alert
+                        message="Success"
+                        description="Employee updated succesfully!"
+                        type="success"
+                        showIcon
+                        closable
+                        />
+                    </div>
+                )
+           }
+           {
+                deletedEmployee &&(
+                    <div className = "alert-container">
+                        <Alert
+                        message="Success"
+                        description="Employee deleted succesfully!"
+                        type="success"
+                        showIcon
+                        closable
+                        />
+                    </div>
+                )
+           }
+            <h1>Update Employee</h1>
+            <form>
+                <p>
                     <label htmlFor="fullName">Full Name</label>
                     <input name="fullName" type="text" id="fullName-input" value={formData.fullName} onChange={handleChange} />
                 </p>
@@ -107,9 +145,11 @@ export default function UpdateEmployee(){
                     <label htmlFor="salary">Salary</label>
                     <input name="salary" type="number" id="salary-input" value={formData.salary} onChange={handleChange}/>
                 </p>
-                <button className="update-employee-button" onClick={handleUpdateEmployee}>Update Employee</button>
-                <button className="delete-employee-button" onClick={handleDeleteEmployee}>Delete Employee</button>
-                <button className="cancel-employee-button" onClick={null}>Cancel</button>
+                <div className="button-container">
+                    <button className="update-employee-button" onClick={handleUpdateEmployee}>Update Employee</button>
+                    <button className="delete-employee-button" onClick={handleDeleteEmployee}>Delete Employee</button>
+                    <button className="cancel-employee-button" onClick={null}>Cancel</button>
+                </div>
             </form>
             
         </>

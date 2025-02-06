@@ -96,9 +96,18 @@ input[type=text] {
   color: rgb(236, 15, 15);
 }
 
+button{
+  margin: 20px;
+}
 
 .alert-container{
   display: flex;
   right: 5%;
   position: absolute;
+}
+
+
+.button-container{
+  display: flex;
+  gap: 20px;
 }

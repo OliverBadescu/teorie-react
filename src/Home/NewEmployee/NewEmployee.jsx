@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react"
 import { createEmployee } from "../../services/service";
+import { Alert } from 'antd';
+
 
 
 export default function NewEmployee() {
+
+    const [addEmployee, setAddEmployee] = useState(false);
 
 
     const [formData, setFormData] = useState({
@@ -29,6 +33,9 @@ export default function NewEmployee() {
     const handleAddEmployee = async(event) =>{
        
         event.preventDefault();
+        setAddEmployee(false);
+
+        setErrors([]);
 
         const  newErros=[];
 
@@ -48,39 +55,63 @@ export default function NewEmployee() {
 
         if(newErros.length>0){
             setErrors(newErros);
-        }else{
-            setErrors([]);
-            let data= await createEmployee(formData);
-            alert("Employee added successfully");
+            return;
+        }
+        try {
+            let data = await createEmployee(formData);
+            setAddEmployee(true);
             setFormData({
-                fullName:'',
-                age:'',
-                gender:'',
-                salary:''
+                fullName: '',
+                age: '',
+                gender: '',
+                salary: ''
             });
+        } catch (error) {
+            console.error("Error creating employee:", error);
+            setErrors(["Failed to create employee. Please try again."]);
         }
 
 
     }
 
     return (
-        <>
-            <h1>New Employee</h1>
-            <form>
-           {
+        <>{
                errors.length>0&&(
-                  <div>
-                      <h2 className="error">Oooops!</h2> 
-                       <ul className="error">
-                         {
-                               errors.map(err=>{
-                                return (<li>{err}</li>)
-                            })
-                         }
-                       </ul>
-                  </div>
+                    <div className = "alert-container add-employee-alert-container">
+                        <Alert 
+                        message="Error"
+                        description={
+                            <div>
+                                {errors.map((error, index) => (
+                                    <div key={index}>{error}</div> 
+                                ))}
+                            </div>
+                        }
+                        type="error"
+                        showIcon
+                        closable
+                        onClose={() => setErrors([])}
+                        />
+                    </div>
                )
            }
+
+           {
+                addEmployee &&(
+                    <div className = "alert-container add-employee-alert-container">
+                        <Alert
+                        message="Success"
+                        description="Employee added succesfully!"
+                        type="success"
+                        showIcon
+                        closable
+                        />
+                    </div>
+                )
+           }
+            <h1>New Employee</h1>
+            <form>
+           
                 <p>
                     <label htmlFor="fullName">Full Name</label>
                     <input name="fullName" type="text" id="fullName-input" value={formData.fullName} onChange={handleChange} />
@@ -97,12 +128,10 @@ export default function NewEmployee() {
                     <label htmlFor="salary">Salary</label>
                     <input name="salary" type="number" id="salary-input" value={formData.salary} onChange={handleChange}/>
                 </p>
-                <button className="create-employee-button" onClick={handleAddEmployee}>Create New Employee</button>
-                <p>
-                    <a className="button" href="#">
-                        Cancel
-                    </a>
-                </p>
+                <div className="button-container">
+                    <button className="create-employee-button" onClick={handleAddEmployee}>Create New Employee</button>
+                    <button className="cancel-button">Cancel</button>
+                </div>
             </form>
         </>
     );

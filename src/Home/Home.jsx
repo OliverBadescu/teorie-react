@@ -60,7 +60,7 @@ export default function Home() {
                    )
                }
                {
-                    error.length == 0 && (
+                    error.length == 0 && !loading &&(
                         <Alert
                         message="Success"
                         description="Employees loaded succesfully"
