@@ -1,7 +1,7 @@
 
 
 
-export default  function Employee({employee}){
+export default function Employee({employee}){
 
 
 
